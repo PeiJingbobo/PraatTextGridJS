@@ -166,4 +166,20 @@ describe("lib/textgrid", function() {
     console.log(json.items.length);
     expect(json.items.length).toEqual(1);
   });
+
+  it("TextGrid to json and json to TextGrid", function() {
+     var sampleUtterancesTextGrid = fs.readFileSync(__dirname + "/../data/sampleUtterances.TextGrid", {
+      encoding: "UTF-8"
+    });
+    var json = textgrid.textgridToJSON(sampleUtterancesTextGrid);
+    
+    var str = textgrid.jsonToTextgrid(json);
+    expect(typeof str).toBe("string");
+
+    var json2 = textgrid.textgridToJSON(sampleUtterancesTextGrid);
+    expect(typeof json2).toBe("object");
+
+    console.log("json 2 success yes!!!! this is my first commit in github");
+  })
+
 });
