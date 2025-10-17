@@ -1,6 +1,6 @@
-/*! textgrid - v2.2.0 - 2021-12-14
+/*! textgrid - v2.2.0 - 2025-10-17
 * https://github.com/OpenSourceFieldlinguistics/PraatTextGridJS
-* Copyright (c) 2021 OpenSourceFieldLinguistics Contribs; Licensed Apache 2.0 */
+* Copyright (c) 2025 OpenSourceFieldLinguistics Contribs; Licensed Apache 2.0 */
 (function(exports) {
 
 	'use strict';
@@ -268,6 +268,63 @@
 				console.log(igtIntervalsJSON[interval].map(mapper));
 			}
 		}
+	};
+
+	TextGrid.jsonToTextgrid = function(json) {
+		var textgrid = '';
+		
+		// 写入文件头
+		textgrid += 'File type = "ooTextFile"\n';
+		textgrid += 'Object class = "TextGrid"\n\n';
+		
+		// 写入基本属性
+		textgrid += 'xmin = ' + (json.xmin || 0) + '\n';
+		textgrid += 'xmax = ' + (json.xmax || 0) + '\n';
+		textgrid += 'tiers? <exists>\n';
+		textgrid += 'size = ' + (json.items ? json.items.length : 0) + '\n';
+		textgrid += 'item []:\n';
+		
+		// 处理每个层级
+		if (json.items) {
+			for (var i = 0; i < json.items.length; i++) {
+				var item = json.items[i];
+				
+				// 写入层级头
+				textgrid += '    item [' + (i + 1) + ']:\n';
+				
+				// 写入层级属性
+				textgrid += '        class = "' + (item.class || 'IntervalTier') + '"\n';
+				textgrid += '        name = "' + (item.name || '') + '"\n';
+				textgrid += '        xmin = ' + (item.xmin || 0) + '\n';
+				textgrid += '        xmax = ' + (item.xmax || 0) + '\n';
+				
+				// 处理区间层级
+				if (item.class === 'IntervalTier' && item.intervals) {
+					textgrid += '        intervals: size = ' + item.intervals.length + '\n';
+					
+					for (var j = 0; j < item.intervals.length; j++) {
+						var interval = item.intervals[j];
+						textgrid += '        intervals [' + (j + 1) + ']:\n';
+						textgrid += '            xmin = ' + (interval.xmin || 0) + '\n';
+						textgrid += '            xmax = ' + (interval.xmax || 0) + '\n';
+						textgrid += '            text = "' + (interval.text || '') + '"\n';
+					}
+				}
+				// 处理点层级
+				else if (item.class === 'TextTier' && item.points) {
+					textgrid += '        points: size = ' + item.points.length + '\n';
+					
+					for (var k = 0; k < item.points.length; k++) {
+						var point = item.points[k];
+						textgrid += '        points [' + (k + 1) + ']:\n';
+						textgrid += '            number = ' + (point.number || 0) + '\n';
+						textgrid += '            text = "' + (point.text || '') + '"\n';
+					}
+				}
+			}
+		}
+		
+		return textgrid;
 	};
 
 	exports.TextGrid = TextGrid;
